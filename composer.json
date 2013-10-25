@@ -1,0 +1,21 @@
+{
+    "name": "peopleperhour/yii-ses-feedback",
+    "description": "Process SES feedback notifications so that your Yii app can react to Email Bounces and Complaints",
+    "keywords": ["yii","aws","ses","sqs","email","PeoplePerHour"],
+    "homepage": "https://github.com/peopleperhour/yii-ses-feedback",
+    "type": "yii-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tom Fotherby",
+            "homepage":"http://www.peopleperhour.com"
+        }
+    ],
+    "autoload": {
+        "classmap": ["/"]
+    },
+    "require": {
+        "php": ">=5.1.0",
+        "aws/aws-sdk-php": "2.*"
+    }
+}
