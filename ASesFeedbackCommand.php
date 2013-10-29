@@ -79,7 +79,7 @@ class ASesFeedbackCommand extends CConsoleCommand
         while (
             $this->_countMsgs < $maxNum
             && $sesFeedback->beforeProcessMsg()
-            && ($result = $handler->instance->receiveMessage(['QueueUrl' => $handler->queueUrl,'MaxNumberOfMessages'=>10])) !== null
+            && ($result = $handler->instance->receiveMessage(array('QueueUrl' => $handler->queueUrl,'MaxNumberOfMessages'=>10))) !== null
             && $result['Messages'] !== null
          ) {
             foreach ($result['Messages'] as $m) {
@@ -123,7 +123,7 @@ class ASesFeedbackCommand extends CConsoleCommand
 
                 if ($status && !$leaveFailuresInQueue) {
                     // Now that this message has been processed, remove it from the queue.
-                    $handler->instance->deleteMessage(['QueueUrl' => $handler->queueUrl,'ReceiptHandle'=>$m['ReceiptHandle']]);
+                    $handler->instance->deleteMessage(array('QueueUrl' => $handler->queueUrl,'ReceiptHandle'=>$m['ReceiptHandle']));
                 } else {
                     $this->printLine("Message NOT removed from queue. status: ".$status.". leaveFailuresInQueue: ".$leaveFailuresInQueue.".");
                 }
