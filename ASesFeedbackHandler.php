@@ -9,11 +9,6 @@
 class ASesFeedbackHandler extends CComponent
 {
     /**
-     * Logging category
-     */
-    const LOGCAT = 'application.components.ASesFeedbackHandler';
-
-    /**
      * @var string AWS SQS access key (a.k.a. AWS_KEY).
      */
     public $accessKey;
@@ -58,18 +53,18 @@ class ASesFeedbackHandler extends CComponent
     }
 
     /**
-     * Get the AWS SDK SQS singleton instance.
+     * Get the AWS SDK SQS instance (pseudo singleton).
      *
-     * @return AWS SQS singleton instance.
+     * @return AWS SQS instance.
      */
     public function getInstance()
     {
         if ($this->_sqs === null) {
             if ($this->accessKey === null && $this->secretKey === null) {
                 // If you don't specify the key and secret, then the SDK will use the IAM role of the machine for the credentials.
-                $this->_sqs = Aws\Sqs\SqsClient::factory(['region'=>$this->region]);
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->region));
             } else {
-                $this->_sqs = Aws\Sqs\SqsClient::factory(['key'=>$this->accessKey,'secret'=>$this->secretKey,'region'=>$this->region]);
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('key'=>$this->accessKey,'secret'=>$this->secretKey,'region'=>$this->region));
             }
         }
 
@@ -83,17 +78,18 @@ class ASesFeedbackHandler extends CComponent
     {
         if ($this->_queueUrl === null) {
             // Do a SQS API call to get the Queue URL
-            $this->_queueUrl = $this->instance->getQueueUrl(['QueueName'=>$this->queueName])->get('QueueUrl');
+            $this->_queueUrl = $this->instance->getQueueUrl(array('QueueName'=>$this->queueName))->get('QueueUrl');
         }
         return $this->_queueUrl;
     }
 
     /*
-     * @return Integer Number of items in the queue
+     * @return Integer Number of items in the queue retrieved via a SQS API call.
      */
     public function getQueueSize()
     {
         // Do a SQS API call to get the "ApproximateNumberOfMessages" in this queue
-        return $this->instance->getQueueAttributes(['QueueUrl'=>$this->queueUrl, 'AttributeNames'=>['ApproximateNumberOfMessages']])['Attributes']['ApproximateNumberOfMessages'];
+        $response = $this->instance->getQueueAttributes(array('QueueUrl'=>$this->queueUrl, 'AttributeNames'=>array('ApproximateNumberOfMessages')));
+        return $response['Attributes']['ApproximateNumberOfMessages'];
     }
 }
