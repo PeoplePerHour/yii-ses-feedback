@@ -51,8 +51,8 @@ Features
    It's up to you how you handle the event (an example is given).
 
 
-Installation - Manual
----------------------
+Installation - Manual (The Old Fashion Way)
+-------------------------------------------
 
 Extract the package to your `extensions` folder into a directory called `yii-ses-feedback`.
 
@@ -97,12 +97,12 @@ return array(
 Now we need a way to trigger the command. Copy the `examples/ExampleSesFeedbackCommand.php` file into your `commands` folder and modify it as you need for your application.
 
 
-Installation - Alternate using Composer
----------------------------------------
+Installation - Automatic (using Composer)
+-----------------------------------------
 
-The advantage of using composer is that you wont need to change your Yii import map, the composer autoloader will import the needed files
+The advantage of using composer is that you wont need to change your Yii import map, the composer autoloader will import the needed files.
 
-In your projects `composer.json` file, add the following requirement:
+Add `peopleperhour/yii-ses-feedback` as a dependency in your project's `composer.json` file:
 <pre>
 {
     "require": {
@@ -111,10 +111,28 @@ In your projects `composer.json` file, add the following requirement:
     },
 </pre>
 
-Run composer: `php composer.phar update`
+Download and install Composer.
 
+<pre>
+curl -s "http://getcomposer.org/installer" | php
+</pre>
 
-Add the component to your Yii console app config file (e.g. `your-project/protected/config/console.php`) and define each queue.
+Install your dependencies.
+
+<pre>
+php composer.phar update
+</pre>
+
+Require Composer's autoloader. Composer prepares an autoload file that's capable of autoloading all of the classes in any of the libraries that it downloads.
+To use it, just add the following line to your code's bootstrap process.
+
+<pre>
+require '/path/to/vendor/autoload.php';
+</pre>
+
+You can find out more on how to install Composer, configure autoloading, and other best-practices for defining dependencies at [getcomposer.org](http://getcomposer.org/).
+
+To configure the extension, add a `sesFeedback` component to your Yii console app config file (e.g. `your-project/protected/config/console.php`) and define each queue.
 If you have multiple queues, configure multiple handlers.
 
 ```php
@@ -175,6 +193,8 @@ Go to your application tests directory, usually `protected/tests` and run the fo
 
 <pre>
 phpunit --verbose ../extensions/yii-ses-feedback/tests/unit/
+or
+phpunit --verbose ../vendor/peopleperhour/yii-ses-feedback/tests/unit/
 </pre>
 
 This will run the unit tests, if all went well they should all pass, otherwise please check your configuration.
