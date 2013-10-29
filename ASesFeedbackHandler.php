@@ -11,22 +11,22 @@ class ASesFeedbackHandler extends CComponent
     /**
      * @var string AWS SQS access key (a.k.a. AWS_KEY).
      */
-    public $accessKey;
+    private $_accessKey;
 
     /**
      * @var string AWS SQS secret key (a.k.a. AWS_SECRET_KEY).
      */
-    public $secretKey;
+    private $_secretKey;
 
     /**
      * @var string The AWS region where this SQS queue lives
      */
-    public $region;
+    private $_region = 'us-east-1'; // Default region
 
     /**
      * @var string The SQS Queue Name that holds the feedback notification messages.
      */
-    public $queueName;
+    protected $_queueName = 'bounces_and_complaints'; // Default SQS name
 
     /**
      * @var Aws\Sqs\SqsClient AmazonSQS Singleton instance of SQS client.
@@ -38,20 +38,6 @@ class ASesFeedbackHandler extends CComponent
      */
     protected $_queueUrl;
 
-    /*
-     * Set some defaults, if wasn't already configured in the yii configuration.
-     */
-    public function init()
-    {
-        if ($this->region === null) {
-            $this->region = 'us-east-1'; // Default region
-        }
-
-        if ($this->queueName === null) {
-            $this->queueName = 'bounces_and_complaints'; // Default SQS name
-        }
-    }
-
     /**
      * Get the AWS SDK SQS instance (pseudo singleton).
      *
@@ -60,16 +46,26 @@ class ASesFeedbackHandler extends CComponent
     public function getInstance()
     {
         if ($this->_sqs === null) {
-            if ($this->accessKey === null && $this->secretKey === null) {
+            if ($this->_accessKey === null && $this->_secretKey === null) {
                 // If you don't specify the key and secret, then the SDK will use the IAM role of the machine for the credentials.
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->region));
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region));
             } else {
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('key'=>$this->accessKey,'secret'=>$this->secretKey,'region'=>$this->region));
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('key'=>$this->_accessKey,'secret'=>$this->_secretKey,'region'=>$this->_region));
             }
         }
 
         return $this->_sqs;
     }
+
+    /**
+     * Setter of handler config (e.g.key and secret).
+     * We may not call these directly, they may be called during the Yii config for this component.
+     **/
+    public function setAccessKey($key)    { $this->_accessKey=$key; }
+    public function setSecretKey($secret) { $this->_secretKey=$secret; }
+    public function setRegion($region)       { $this->_region=$region; }
+    public function setQueueName($queueName) { $this->_queueName=$queueName; }
+    public function getQueueName() { return $this->_queueName;}
 
     /*
      * @return String URL of SQS queue, needed in many SQS API calls
@@ -78,7 +74,7 @@ class ASesFeedbackHandler extends CComponent
     {
         if ($this->_queueUrl === null) {
             // Do a SQS API call to get the Queue URL
-            $this->_queueUrl = $this->instance->getQueueUrl(array('QueueName'=>$this->queueName))->get('QueueUrl');
+            $this->_queueUrl = $this->instance->getQueueUrl(array('QueueName'=>$this->_queueName))->get('QueueUrl');
         }
         return $this->_queueUrl;
     }

@@ -28,7 +28,6 @@ class ASesFeedback extends CApplicationComponent
                 if (!($handler instanceof ASesFeedbackHandler)) {
                     throw new CException('Handler was the wrong class type');
                 }
-                $handler->init(); // initilise this handler
 
                 $this->_handlers[$key] = $handler; // Add handler to our map.
             }
