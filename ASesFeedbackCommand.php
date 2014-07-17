@@ -121,7 +121,7 @@ class ASesFeedbackCommand extends CConsoleCommand
                 // Also log (with trace) the message so we can debug more easily)
                 $this->printLine($logText.$statusString." - Msg: ".CVarDumper::dumpAsString($m), CLogger::LEVEL_TRACE);
 
-                if ($status && !$leaveFailuresInQueue) {
+                if ($status || !$leaveFailuresInQueue) {
                     // Now that this message has been processed, remove it from the queue.
                     $handler->instance->deleteMessage(array('QueueUrl' => $handler->queueUrl,'ReceiptHandle'=>$m['ReceiptHandle']));
                 } else {
