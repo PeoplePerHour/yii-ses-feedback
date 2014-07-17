@@ -125,7 +125,8 @@ class ASesFeedbackCommand extends CConsoleCommand
                     // Now that this message has been processed, remove it from the queue.
                     $handler->instance->deleteMessage(array('QueueUrl' => $handler->queueUrl,'ReceiptHandle'=>$m['ReceiptHandle']));
                 } else {
-                    $this->printLine("Message NOT removed from queue. status: ".$status.". leaveFailuresInQueue: ".$leaveFailuresInQueue.".");
+                    $leaveTxt = $leaveFailuresInQueue ? "Yes" : "No";
+                    $this->printLine("Message NOT removed from queue. status: ".$statusString.". leaveFailuresInQueue: ".$leaveTxt.".");
                 }
             }
         }
