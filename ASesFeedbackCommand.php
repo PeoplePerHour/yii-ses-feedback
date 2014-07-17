@@ -25,9 +25,11 @@ class ASesFeedbackCommand extends CConsoleCommand
     const LOGCAT = 'application.commands.ASesFeedbackCommand';
 
 
-    private $_countMsgs      = 0;
-    private $_countBounce    = 0;
-    private $_countComplaint = 0;
+    protected $_countMsgs        = 0;
+    protected $_countBounceOK    = 0;
+    protected $_countBounceKO    = 0;
+    protected $_countComplaintOK = 0;
+    protected $_countComplaintKO = 0;
 
     /**
      * Initialize the command object.
@@ -59,7 +61,7 @@ class ASesFeedbackCommand extends CConsoleCommand
             }
         }
 
-        $this->printLine("Finished. Bounce count: ".$this->_countBounce.", complaint count: ".$this->_countComplaint);
+        $this->printLine("Finished. Bounce count OK: ".$this->_countBounceOK.", KO: ".$this->_countBounceKO.", complaint count OK: ".$this->_countComplaintOK.", KO: ".$this->_countComplaintKO);
     }
 
     /**
@@ -90,15 +92,19 @@ class ASesFeedbackCommand extends CConsoleCommand
                 if ($msg['notificationType'] == 'Complaint') {
                     $logText = "Processing Complaint for messageId ".$msg['mail']['messageId']."... ";
 
-                    $status = $sesFeedback->processComplaint($msg);
-
-                    $this->_countComplaint++;
+                    if (($status = $sesFeedback->processComplaint($msg))) {
+                        $this->_countComplaintOK++;
+                    } else {
+                        $this->_countComplaintKO++;
+                    }
                 } else if ($msg['notificationType'] == 'Bounce') {
                     $logText =  "Processing Bounce for messageId ".$msg['mail']['messageId']."... ";
 
-                    $status = $sesFeedback->processBounce($msg);
-
-                    $this->_countBounce++;
+                    if (($status = $sesFeedback->processBounce($msg))) {
+                        $this->_countBounceOK++;
+                    } else {
+                        $this->_countBounceKO++;
+                    }
                 } else {
                     // Not a bounce or complaint.
                     // Example: AmazonSnsSubscriptionSucceeded - "You have successfully subscribed your Amazon SNS topic to receive 'Complaint' notifications from Amazon SES"
