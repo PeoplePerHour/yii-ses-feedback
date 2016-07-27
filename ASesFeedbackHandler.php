@@ -48,9 +48,9 @@ class ASesFeedbackHandler extends CComponent
         if ($this->_sqs === null) {
             if ($this->_accessKey === null && $this->_secretKey === null) {
                 // If you don't specify the key and secret, then the SDK will use the IAM role of the machine for the credentials.
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region));
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05'));
             } else {
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('key'=>$this->_accessKey,'secret'=>$this->_secretKey,'region'=>$this->_region));
+                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05','credentials'=>array('key'=>$this->_accessKey,'secret'=>$this->_secretKey)));
             }
         }
 
