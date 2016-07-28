@@ -19,9 +19,14 @@ class ASesFeedbackHandler extends CComponent
     private $_secretKey;
 
     /**
+     * @var integer Which version of the AWS SDK for PHP is being used.
+     */
+    private $_awsApiVersion = 3; // v3 was released in 27/May/15
+
+    /**
      * @var string The AWS region where this SQS queue lives
      */
-    private $_region = 'us-east-1'; // Default region
+    protected $_region = 'us-east-1'; // Default region
 
     /**
      * @var string The SQS Queue Name that holds the feedback notification messages.
@@ -48,9 +53,17 @@ class ASesFeedbackHandler extends CComponent
         if ($this->_sqs === null) {
             if ($this->_accessKey === null && $this->_secretKey === null) {
                 // If you don't specify the key and secret, then the SDK will use the IAM role of the machine for the credentials.
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05'));
+                if ($this->_awsApiVersion==2) {
+                    $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region));
+                } else {
+                    $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05'));
+                }
             } else {
-                $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05','credentials'=>array('key'=>$this->_accessKey,'secret'=>$this->_secretKey)));
+                if ($this->_awsApiVersion==2) {
+                    $this->_sqs = Aws\Sqs\SqsClient::factory(array('key'=>$this->_accessKey,'secret'=>$this->_secretKey,'region'=>$this->_region));
+                } else {
+                    $this->_sqs = Aws\Sqs\SqsClient::factory(array('region'=>$this->_region,'version'=>'2012-11-05','credentials'=>array('key'=>$this->_accessKey,'secret'=>$this->_secretKey)));
+                }
             }
         }
 
@@ -63,7 +76,9 @@ class ASesFeedbackHandler extends CComponent
      **/
     public function setAccessKey($key)    { $this->_accessKey=$key; }
     public function setSecretKey($secret) { $this->_secretKey=$secret; }
+    public function setAwsApiVersion($awsApiVersion) { $this->_awsApiVersion=$awsApiVersion; }
     public function setRegion($region)       { $this->_region=$region; }
+    public function getRegion() { return $this->_region;}
     public function setQueueName($queueName) { $this->_queueName=$queueName; }
     public function getQueueName() { return $this->_queueName;}
 

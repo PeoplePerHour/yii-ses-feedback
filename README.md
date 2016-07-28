@@ -7,9 +7,9 @@ Introduction
 Does your Yii application use Amazon [Simple Email Service (SES)](http://aws.amazon.com/ses/) for sending email?
 If so you can use this extension to process "feedback notifications" such as email bounces and email complaints.
 
-What do we mean by a "email bounce"? We mean a email delivery failure, for example, if an email address does not exist.
-
-What do we mean by a "email complaint"? We mean the recipient has indicated they do not what the email that you sent them, for example, by clicking "Mark as spam" in their email client. Amazon SES has feedback loops set up with certain major ISPs, and can automatically forward the complaint information to us.
+ * What do we mean by a "email bounce"? We mean a email delivery failure, for example, if an email address does not exist.
+ * What do we mean by a "email complaint"? We mean the recipient has indicated they do not what the email that you sent them, for example, by clicking "Mark as spam" in their email client.
+   Amazon SES has feedback loops set up with certain major ISPs, and can automatically forward the complaint information to the sender.
 
 Why do you need Yii-ses-feedback?
 ---------------------------------
@@ -23,18 +23,18 @@ Why do you need Yii-ses-feedback?
 Requirements
 ------------
 
- * Yii 1.0+
+ * Yii 1.*
  * You must be using Amazon [Simple Email Service](http://aws.amazon.com/ses/) (SES) to send email.
   * You must configure Amazon SES Feedback Notifications via Amazon Simple Notification Service (SNS).
-    Here are [instructions](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/configure-sns-notifications.html).
+    This can be done via there web-console - here are [instructions](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/configure-sns-notifications.html).
   * You must configure the SNS messages to integrate with Amazon Simple Queue Service (SQS) to ensure the feedback notifications are stored until our application can process them.
     Set up the following AWS components to handle bounce notifications:
      1. Create an Amazon SQS queue named `bounces_and_complaints`.
      1. Create an Amazon SNS topic named `bounces_and_complaints-topic`.
      1. Configure the new Amazon SNS topic to publish to the SQS queue.
      1. Configure Amazon SES to publish bounce notifications using `bounces_and_complaints-topic` to the `bounces_and_complaints` queue. Instead of a combined queue, you can choose to use two separate queues if you want.
- * You must must use the [AWS SDK for PHP 2](https://github.com/aws/aws-sdk-php) within your Yii App. This is used to access the SQS API.
- * You must have the access credentials to use the SQS API. They will be needed when configuring Yii-ses-feedback.
+ * Yii-ses-feedback requires the [AWS SDK for PHP](https://github.com/aws/aws-sdk-php) to access the SQS API. SQS API access credentials will be needed when configuring Yii-ses-feedback.
+  * Yii-ses-feedback supports v2 or v3 of the API. v3 was released in 27/May/15 and is the default, if you need v2 then there is one extra line to add to the config, see below.
 
 
 Features
@@ -82,9 +82,10 @@ return array(
                 'bounceAndComplaint' => array(
                     'class'  => 'ext.yii-ses-feedback.ASesFeedbackHandler',
                     'accessKey'  => 'DKIASHFUSET2X3G5JR5D',
-                    'secretKey'  => 'fAXKA2GdslDlGXIbdZNty4Ag4eig453yOfFuffr4',
+                    'secretKey'  => 'thisisadummycred+ZNty4Ag4eig453yOfFuffr4',
                     'region'     => 'us-east-1',
                     'queueName'  => 'bounces_and_complaints',
+                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this is your app uses v2.
                 ),
             )
         ),
@@ -147,9 +148,10 @@ return array(
                 'bounceAndComplaint' => array(
                     'class'  => '\ASesFeedbackHandler',     // Composer autoloading needs to a prepended backslash
                     'accessKey'  => 'DKIASHFUSET2X3G5JR5D',
-                    'secretKey'  => 'fAXKA2GdslDlGXIbdZNty4Ag4eig453yOfFuffr4',
+                    'secretKey'  => 'thisisadummycred+ZNty4Ag4eig453yOfFuffr4',
                     'region'     => 'us-east-1',
                     'queueName'  => 'bounces_and_complaints',
+                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this is your app uses v2.
                 ),
             )
         ),
@@ -164,7 +166,9 @@ Running unit tests
 
 The unit tests do not use a real SQS queue, instead they use a Mock queue implemented as a PHP Array.
 
-In your `tests/config.php` file, ensure the extension files will be imported and that the sesFeedback component uses the Mock Version:
+In your `tests/config.php` file, ensure the extension files will be imported and that the sesFeedback component uses the Mock Version.
+
+If installed into the Yii extensions folder:
 
 ```php
 <?php
@@ -181,13 +185,34 @@ return array(
             'class' => 'ext.yii-ses-feedback.ASesFeedback',  // or '\ASesFeedback' if using the composer autoloader.
             'handlers' => array(
                 'myMockQueue' => array(
-                    'class'  => 'ext.yii-ses-feedback.tests.mocks.ASesFeedbackHandlerMock',   // or '\ASesFeedbackHandlerMock'
+                    'class' => 'ext.yii-ses-feedback.tests.mocks.ASesFeedbackHandlerMock',   // or '\ASesFeedbackHandlerMock'
                 ),
             )
         ),
     ),
 );
 ```
+
+If installed via composer:
+
+```php
+<?php
+return array(
+    // ...
+    'components'=>array(
+        // ...
+        'sesFeedback' => array(
+            'class' => '\ASesFeedback',  // or 'application.vendor.peopleperhour.yii-ses-feedback.ASesFeedback'
+            'handlers' => array(
+                'myMockQueue' => array(
+                    'class' => '\ASesFeedbackHandlerMock',   // or 'application.vendor.peopleperhour.yii-ses-feedback.tests.mocks.ASesFeedbackHandlerMock'
+                ),
+            )
+        ),
+    ),
+);
+```
+
 
 Go to your application tests directory, usually `protected/tests` and run the following command:
 
@@ -200,6 +225,67 @@ phpunit --verbose ../vendor/peopleperhour/yii-ses-feedback/tests/unit/
 This will run the unit tests, if all went well they should all pass, otherwise please check your configuration.
 
 
+Example Usage
+-------------
+
+Yii-ses-feedback itself doesn't do anything except raise Yii events.
+To do something useful with email feedback, you'll need to attach event listeners on the `onSesBounce` and `onSesComplaint` events  .
+To do this, create a yiic command that `extends ASesFeedbackCommand`, here's an example where complaints are logged and bounces are saved to the database:
+
+
+```php
+<?php
+class PPHSesFeedbackCommand extends ASesFeedbackCommand
+{
+    /**
+     * Initialize the command object so we can attach listeners to the parent Object events
+     */
+    public function init()
+    {
+        parent::init();
+
+        // Attach the reactToBounce() method to the onSesBounce event.
+        Yii::app()->sesFeedback->onSesBounce = array($this, "reactToBounce");
+
+        // Attach an anonymous function to the onSesComplaint event.
+        // If we decide we want to do something when someone complains, add it here
+        Yii::app()->sesFeedback->onSesComplaint = function ($event) {Yii::log('Complaint recieved in PPHSesFeedbackCommand - No action taken.', CLogger::LEVEL_INFO, ASesFeedbackCommand::LOGCAT);};
+    }
+
+    /**
+     * Process a Email bounce event.
+     */
+    public function reactToBounce(CEvent $event)
+    {
+        // Add your custom logic here
+        $msg = $event->params['msg'];
+
+        // Extract the reason for the bounce
+        $reason = 'bounceType: '.$msg['bounce']['bounceType'].'. '       // e.g. 'Permanent' or 'Transient'.
+                  .'bounceSubType: '.$msg['bounce']['bounceSubType'].'.';// e.g. 'Undetermined','General','Suppressed','NoEmail','MailboxFull','MessageToolarge','ContentRejected','AttachmentRejected'
+
+        foreach($msg['bounce']['bouncedRecipients'] as $r) {
+
+            $email = $r['emailAddress'];
+
+            // If this bounce notification has a delivery status notification (DSN), fetch it:
+            if (isset($r['diagnosticCode'])) {
+                $reason .= ' diagnosticCode: '.$r['diagnosticCode'];
+            }
+
+            // Add a new bounce record to the database
+            EmailBounce::model()->addNewBounce(
+                $email,
+                substr($msg['bounce']['bounceType'],0,5),
+                $reason,
+                date('Y-m-d H:i:s', strtotime($msg['mail']['timestamp']))
+            );
+        }
+    }
+}
+```
+
+
 How to schedule automatic processing
 ------------------------------------
 
@@ -210,10 +296,13 @@ To automatically process your feedback queue periodically, set up a cron job to 
 </pre>
 
 Another way is to use the Yii [phpdoc-crontab extension](http://www.yiiframework.com/extension/phpdoc-crontab/).
-Once configured, you will be able to define automated Yii commands with some simple PHP header comments, Example:
+Once configured, you will be able to define automated Yii commands with some simple PHP header comments.
+Here's an Example which could be added to the `PPHSesFeedbackCommand` class above:
 
 <pre>
 /**
+ * Fetch feedback notifications from SQS and process them.
+ *
  * @cron *\10 * * * *
  * @cron-tags live staging
  */
@@ -227,6 +316,6 @@ Resources
 ---------
 
  * Instructions to configure SNS notifications - http://docs.aws.amazon.com/ses/latest/DeveloperGuide/configure-sns-notifications.html
- * AWS SDK PHP 2 for SES: http://docs.aws.amazon.com/aws-sdk-php-2/guide/latest/service-ses.html
- * AWS SDK PHP 2 for SQS: http://docs.aws.amazon.com/aws-sdk-php-2/guide/latest/service-sqs.html
+ * AWS SDK PHP 3: http://docs.aws.amazon.com/aws-sdk-php/v3/guide/
+  * or AWS SDK PHP 2 for SQS: http://docs.aws.amazon.com/aws-sdk-php-2/guide/latest/service-sqs.html
 

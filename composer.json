@@ -16,6 +16,6 @@
     },
     "require": {
         "php": ">=5.1.0",
-        "aws/aws-sdk-php": "3.*"
+        "aws/aws-sdk-php": ">=2"
     }
 }
