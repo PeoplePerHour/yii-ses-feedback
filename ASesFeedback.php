@@ -1,6 +1,6 @@
 <?php
 /**
- * This Yii Component defines and raises Yii events realated to Amazon SES feedback notifications.
+ * This Yii Component defines and raises Yii events related to Amazon SES feedback notifications.
  */
 class ASesFeedback extends CApplicationComponent
 {
@@ -46,7 +46,7 @@ class ASesFeedback extends CApplicationComponent
     }
 
     /**
-     * This event is raised when a SES Complaint notification is processed.
+     * This event is raised when an SES Complaint notification is processed.
      *
      * The "on" prefixed to this method name magically defines this as an event.
      * Note: In order to attach a function to an object you need to be able to access the object from other areas of the application.
@@ -60,7 +60,7 @@ class ASesFeedback extends CApplicationComponent
     }
 
     /**
-     * This event is raised when a SES Bounce notification is processed.
+     * This event is raised when an SES Bounce notification is processed.
      *
      * The "on" prefixed to this method name magically defines this as an event.
      * Note: In order to attach a function to an object you need to be able to access the object from other areas of the application.
@@ -74,7 +74,7 @@ class ASesFeedback extends CApplicationComponent
     }
 
     /**
-     * This event is raised before We start working off the queue.
+     * This event is raised before we start working off the queue.
      * By setting {@link CModelEvent::isValid} to be false, the normal {@link workOff()} process will be stopped.
      *
      * The "on" prefixed to this method name magically defines this as an event.
@@ -138,7 +138,7 @@ class ASesFeedback extends CApplicationComponent
     }
 
     /**
-     * This method is invoked when we have a SES Complaint notification to process.
+     * This method is invoked when we have an SES Complaint notification to process.
      * The default implementation raises the {@link onSesComplaint} event.
      *
      * @param Array The SES Complaint Message
@@ -157,7 +157,7 @@ class ASesFeedback extends CApplicationComponent
     }
 
     /**
-     * This method is invoked when we have a SES Bounce notification to process.
+     * This method is invoked when we have an SES Bounce notification to process.
      * The default implementation raises the {@link onSesBounce} event.
      *
      * @param Array The SES Bounce Message

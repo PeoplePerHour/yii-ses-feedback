@@ -1,11 +1,11 @@
 <?php
 /**
- * ExampleSesFeedbackCommand - A Yii command that processes a SQS queue to work off bounce and complaint messages.
+ * ExampleSesFeedbackCommand - A Yii command that processes an SQS queue to work off bounce and complaint messages.
  *
  * The parent Object raises the necessary events - we listen to them and add a bounce record to the database each time.
  *
  */
-class ExampleSesFeedbackCommand extends SesFeedbackCommand
+class ExampleSesFeedbackCommand extends ASesFeedbackCommand
 {
     /**
      * Initialize the command object so we can attach listeners to the parent Object events
@@ -37,7 +37,7 @@ class ExampleSesFeedbackCommand extends SesFeedbackCommand
     }
 
     /**
-     * Process a Email bounce event.
+     * Process an email bounce event.
      */
     public function reactToBounce(CEvent $event)
     {
@@ -45,7 +45,7 @@ class ExampleSesFeedbackCommand extends SesFeedbackCommand
 
         // Extract the reason for the bounce
         $reason = 'bounceType: '.$msg['bounce']['bounceType'].'. ';       // e.g. 'Permanent' or 'Transient'.
-        $reason .= 'bounceSubType: '.$msg['bounce']['bounceSubType'].'.'; // e.g. 'Undetermined','General','Suppressed','NoEmail','MailboxFull','MessageToolarge','ContentRejected','AttachmentRejected'
+        $reason .= 'bounceSubType: '.$msg['bounce']['bounceSubType'].'.'; // e.g. 'Undetermined','General','Suppressed','NoEmail','MailboxFull','MessageTooLarge','ContentRejected','AttachmentRejected'
 
         foreach($msg['bounce']['bouncedRecipients'] as $r) {
 
@@ -69,11 +69,11 @@ class ExampleSesFeedbackCommand extends SesFeedbackCommand
     }
 
     /**
-     * Process a Email complaint event.
+     * Process an email complaint event.
      */
     public function reactToComplaint(CEvent $event)
     {
-        Yii::log('Complaint recieved - We currently do not process Complaints', 'info', self::LOGCAT);
+        Yii::log('Complaint received - We currently do not process Complaints', 'info', self::LOG_CAT);
 
         // Add your own application logic here.
     }

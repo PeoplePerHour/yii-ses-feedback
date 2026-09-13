@@ -1,9 +1,9 @@
 <?php
 /**
- * This Component is to handle a SQS queue being used for SES feedback notifications.
+ * This Component is to handle an SQS queue being used for SES feedback notifications.
  *
  * The reason we have a separate class for the handlers is that there might be
- * multiple SQS's to handle. Some folks will have one queue for all notifications,
+ * multiple SQS queues to handle. Some folks will have one queue for all notifications,
  * others will have one queue for bounces and another for complaints.
  */
 class ASesFeedbackHandler extends CComponent
@@ -21,7 +21,7 @@ class ASesFeedbackHandler extends CComponent
     /**
      * @var integer Which version of the AWS SDK for PHP is being used.
      */
-    private $_awsApiVersion = 3; // v3 was released in 27/May/15
+    private $_awsApiVersion = 3; // v3 was released on 27/May/15
 
     /**
      * @var string The AWS region where this SQS queue lives
@@ -71,7 +71,7 @@ class ASesFeedbackHandler extends CComponent
     }
 
     /**
-     * Setter of handler config (e.g.key and secret).
+     * Setter of handler config (e.g. key and secret).
      * We may not call these directly, they may be called during the Yii config for this component.
      **/
     public function setAccessKey($key)    { $this->_accessKey=$key; }
@@ -88,18 +88,18 @@ class ASesFeedbackHandler extends CComponent
     public function getQueueUrl()
     {
         if ($this->_queueUrl === null) {
-            // Do a SQS API call to get the Queue URL
+            // Do an SQS API call to get the Queue URL
             $this->_queueUrl = $this->instance->getQueueUrl(array('QueueName'=>$this->_queueName))->get('QueueUrl');
         }
         return $this->_queueUrl;
     }
 
     /*
-     * @return Integer Number of items in the queue retrieved via a SQS API call.
+     * @return Integer Number of items in the queue retrieved via an SQS API call.
      */
     public function getQueueSize()
     {
-        // Do a SQS API call to get the "ApproximateNumberOfMessages" in this queue
+        // Do an SQS API call to get the "ApproximateNumberOfMessages" in this queue
         $response = $this->instance->getQueueAttributes(array('QueueUrl'=>$this->queueUrl, 'AttributeNames'=>array('ApproximateNumberOfMessages')));
         return $response['Attributes']['ApproximateNumberOfMessages'];
     }

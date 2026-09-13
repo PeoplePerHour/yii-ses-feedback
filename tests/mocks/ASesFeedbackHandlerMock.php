@@ -17,7 +17,7 @@ class ASesFeedbackHandlerMock extends ASesFeedbackHandler
     public function getInstance()
     {
         if ($this->_sqs === null) {
-            // Instead of returning a real SQS queue, We have embedded a mock one which mirros the same API.
+            // Instead of returning a real SQS queue, we have embedded a mock one which mirrors the same API.
             $this->_sqs = $this;
         }
 

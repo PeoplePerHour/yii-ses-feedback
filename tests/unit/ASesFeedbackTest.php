@@ -17,9 +17,9 @@ class ASesFeedbackTest extends CTestCase
 
     public function testDefaults()
     {
-        foreach (Yii::app()->sesFeedback->getHandlers() as $name => $hander) {
-            $this->assertEquals('us-east-1', $hander->region, 'Expected the unit tests to use the default region.');
-            $this->assertEquals('bounces_and_complaints', $hander->queueName, 'Expected the unit tests to use the default queue name.');
+        foreach (Yii::app()->sesFeedback->getHandlers() as $name => $handler) {
+            $this->assertEquals('us-east-1', $handler->region, 'Expected the unit tests to use the default region.');
+            $this->assertEquals('bounces_and_complaints', $handler->queueName, 'Expected the unit tests to use the default queue name.');
         }
     }
 
@@ -94,27 +94,27 @@ class ASesFeedbackTest extends CTestCase
 
         $this->assertEquals(1, $sesFeedback->getHandlers()->getCount(), 'Expected a handler to be defined in the test config');
 
-        // Set $hander - Any one in the list will do
-        foreach ($sesFeedback->getHandlers() as $name => $hander);
+        // Set $handler - Any one in the list will do
+        foreach ($sesFeedback->getHandlers() as $name => $handler);
 
         // Put a bounce into the queue
         $msg1=$this->msgs['bounceMessage1'];
-        $hander->instance->sendMessage(array(
-            'QueueUrl' => $hander->queueUrl,
+        $handler->instance->sendMessage(array(
+            'QueueUrl' => $handler->queueUrl,
             'MessageBody' => json_encode($msg1),
         ));
 
         // Put a complaint into the queue
         $msg2=$this->msgs['complaintMessage1'];
-        $hander->instance->sendMessage(array(
-            'QueueUrl' => $hander->queueUrl,
+        $handler->instance->sendMessage(array(
+            'QueueUrl' => $handler->queueUrl,
             'MessageBody' => json_encode($msg2),
         ));
 
 
         // Fetch feedback notification messages from the queue
-        $result = $hander->instance->receiveMessage(array(
-            'QueueUrl' => $hander->queueUrl,
+        $result = $handler->instance->receiveMessage(array(
+            'QueueUrl' => $handler->queueUrl,
             'MaxNumberOfMessages'=>10
         ));
 
@@ -128,7 +128,7 @@ class ASesFeedbackTest extends CTestCase
         $res2 = $result['Messages'][1];
         $sqsMsgBody2 = json_decode($res2['Body'], true);
         $msg2 = json_decode($sqsMsgBody2['Message'], true);
-        $this->assertEquals('Complaint', $msg2['notificationType'], 'Expected the message to be a bounce.');
+        $this->assertEquals('Complaint', $msg2['notificationType'], 'Expected the message to be a complaint.');
     }
 
     /**
@@ -141,12 +141,12 @@ class ASesFeedbackTest extends CTestCase
         // Check that by default WorkOff() is not blocked
         $this->assertTrue($sesFeedback->beforeWorkOff(), 'Expected workOff() not to be blocked by default.');
 
-        // Attach a event handler with does nothing at all
+        // Attach an event handler that does nothing at all
         Yii::app()->sesFeedback->attachEventHandler('onBeforeWorkOff', function ($eventA) {$noop = true;});
 
         $this->assertTrue($sesFeedback->beforeWorkOff(), 'Expected workOff() still not to be blocked.');
 
-        // Attach a event handler that will block WorkOff()  (use the alternative syntax)
+        // Attach an event handler that will block WorkOff()  (use the alternative syntax)
         Yii::app()->sesFeedback->onBeforeWorkOff = function ($eventA) {$eventA->isValid = false;};
 
         // Check that now WorkOff() is blocked
@@ -163,7 +163,7 @@ class ASesFeedbackTest extends CTestCase
         // Check that by default processMsg()  is not blocked
         $this->assertTrue($sesFeedback->beforeProcessMsg(), 'Expected processMsg() not to be blocked by default.');
 
-        // Create a object that attaches to onBeforeProcessMsg and blocks it
+        // Create an object that attaches to onBeforeProcessMsg and blocks it
         $haltingListener2 = new testASesFeedbackHaltingEventListener();
 
         // Check that now processMsg() is blocked
@@ -221,7 +221,7 @@ class testASesFeedbackHaltingEventListener
 {
     public function __construct()
     {
-        // Attach an anonymous function to the onBeforeProcessMsg event that causes peforeProcessMsg() to be blocked
+        // Attach an anonymous function to the onBeforeProcessMsg event that causes beforeProcessMsg() to be blocked
         Yii::app()->sesFeedback->onBeforeProcessMsg = function ($eventB) {$eventB->isValid = false;};
     }
 }

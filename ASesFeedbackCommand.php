@@ -1,8 +1,8 @@
 <?php
 /**
- * ASesFeedbackCommand - A Yii command that processes a SQS queue to work off bounce and complaint messages.
+ * ASesFeedbackCommand - A Yii command that processes an SQS queue to work off bounce and complaint messages.
  *
- * Yii events are raised so that a interested listener can react to the event as needed.
+ * Yii events are raised so that an interested listener can react to the event as needed.
  *
  * The format of the SQS message is determined by Amazon.
  * There are some examples at @link http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-examples.html
@@ -22,7 +22,7 @@ class ASesFeedbackCommand extends CConsoleCommand
     /**
      * Logging category
      */
-    const LOGCAT = 'application.commands.ASesFeedbackCommand';
+    const LOG_CAT = 'application.commands.ASesFeedbackCommand';
 
 
     protected $_countMsgs        = 0;
@@ -37,7 +37,7 @@ class ASesFeedbackCommand extends CConsoleCommand
     public function init()
     {
         // Tell yii to flush the logs every message (instead of buffering for the default 10,000)
-        // Without this, you cannot use the log to find out where the script has got to in it's current run.
+        // Without this, you cannot use the log to find out where the script has got to in its current run.
         Yii::getLogger()->autoFlush = 1;
         Yii::getLogger()->autoDump = true;
 
@@ -124,7 +124,7 @@ class ASesFeedbackCommand extends CConsoleCommand
 
                 // Log all bounces/complaints
                 $this->printLine($logText.$statusString, CLogger::LEVEL_INFO);
-                // Also log (with trace) the message so we can debug more easily)
+                // Also log (with trace) the message so we can debug more easily
                 $this->printLine($logText.$statusString." - Msg: ".CVarDumper::dumpAsString($m), CLogger::LEVEL_TRACE);
 
                 if ($status || !$leaveFailuresInQueue) {
@@ -145,7 +145,7 @@ class ASesFeedbackCommand extends CConsoleCommand
      */
     protected function printLine($line, $level = 'info')
     {
-        Yii::log($line, $level, self::LOGCAT);
+        Yii::log($line, $level, self::LOG_CAT);
         if ($level != CLogger::LEVEL_TRACE) {
             echo $line.PHP_EOL;
         }

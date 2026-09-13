@@ -7,16 +7,16 @@ Introduction
 Does your Yii application use Amazon [Simple Email Service (SES)](http://aws.amazon.com/ses/) for sending email?
 If so you can use this extension to process "feedback notifications" such as email bounces and email complaints.
 
- * What do we mean by a "email bounce"? We mean a email delivery failure, for example, if an email address does not exist.
- * What do we mean by a "email complaint"? We mean the recipient has indicated they do not what the email that you sent them, for example, by clicking "Mark as spam" in their email client.
+ * What do we mean by an "email bounce"? We mean an email delivery failure, for example, if an email address does not exist.
+ * What do we mean by an "email complaint"? We mean the recipient has indicated they do not want the email that you sent them, for example, by clicking "Mark as spam" in their email client.
    Amazon SES has feedback loops set up with certain major ISPs, and can automatically forward the complaint information to the sender.
 
 Why do you need Yii-ses-feedback?
 ---------------------------------
 
- * Cost: By using SES, you pay per message. To save money you need a feedback loop so you can know which emails are not being recieved, and stop sending them.
+ * Cost: By using SES, you pay per message. To save money you need a feedback loop so you can know which emails are not being received, and stop sending them.
  * Reputation: If your SES account racks up too many bounces or complaints, your reputation will decrease. Amazon might not let you increase your sending throughput for example.
- * Workflow: You might want to deactivate users with invalid email addresses. For many apps, having a large number of dormant user accounts will we a performance problem.
+ * Workflow: You might want to deactivate users with invalid email addresses. For many apps, having a large number of dormant user accounts will be a performance problem.
  * Stats: You might want to record bounce stats in your application database.
 
 
@@ -26,7 +26,7 @@ Requirements
  * Yii 1.*
  * You must be using Amazon [Simple Email Service](http://aws.amazon.com/ses/) (SES) to send email.
   * You must configure Amazon SES Feedback Notifications via Amazon Simple Notification Service (SNS).
-    This can be done via there web-console - here are [instructions](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/configure-sns-notifications.html).
+    This can be done via their web console - here are [instructions](http://docs.aws.amazon.com/ses/latest/DeveloperGuide/configure-sns-notifications.html).
   * You must configure the SNS messages to integrate with Amazon Simple Queue Service (SQS) to ensure the feedback notifications are stored until our application can process them.
     Set up the following AWS components to handle bounce notifications:
      1. Create an Amazon SQS queue named `bounces_and_complaints`.
@@ -34,7 +34,7 @@ Requirements
      1. Configure the new Amazon SNS topic to publish to the SQS queue.
      1. Configure Amazon SES to publish bounce notifications using `bounces_and_complaints-topic` to the `bounces_and_complaints` queue. Instead of a combined queue, you can choose to use two separate queues if you want.
  * Yii-ses-feedback requires the [AWS SDK for PHP](https://github.com/aws/aws-sdk-php) to access the SQS API. SQS API access credentials will be needed when configuring Yii-ses-feedback.
-  * Yii-ses-feedback supports v2 or v3 of the API. v3 was released in 27/May/15 and is the default, if you need v2 then there is one extra line to add to the config, see below.
+  * Yii-ses-feedback supports v2 or v3 of the API. v3 was released on 27/May/15 and is the default, if you need v2 then there is one extra line to add to the config, see below.
 
 
 Features
@@ -47,11 +47,11 @@ Features
    The amount of time you should wait before resending to the address that generated the transient bounce depends on the transient bounce type.
    Certain transient bounces require manual intervention before the message can be delivered (e.g., message too large or content error).
    If the bounce type is undetermined, you should manually review the bounce and act accordingly.
- * Raise a Yii event whenever a Email bounce or complaint is found.
+ * Raise a Yii event whenever an email bounce or complaint is found.
    It's up to you how you handle the event (an example is given).
 
 
-Installation - Manual (The Old Fashion Way)
+Installation - Manual (The Old-Fashioned Way)
 -------------------------------------------
 
 Extract the package to your `extensions` folder into a directory called `yii-ses-feedback`.
@@ -85,7 +85,7 @@ return array(
                     'secretKey'  => 'thisisadummycred+ZNty4Ag4eig453yOfFuffr4',
                     'region'     => 'us-east-1',
                     'queueName'  => 'bounces_and_complaints',
-                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this is your app uses v2.
+                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this if your app uses v2.
                 ),
             )
         ),
@@ -101,7 +101,7 @@ Now we need a way to trigger the command. Copy the `examples/ExampleSesFeedbackC
 Installation - Automatic (using Composer)
 -----------------------------------------
 
-The advantage of using composer is that you wont need to change your Yii import map, the composer autoloader will import the needed files.
+The advantage of using composer is that you won't need to change your Yii import map, the composer autoloader will import the needed files.
 
 Add `peopleperhour/yii-ses-feedback` as a dependency in your project's `composer.json` file:
 <pre>
@@ -143,15 +143,15 @@ return array(
     'components'=>array(
         // ...
         'sesFeedback' => array(
-            'class' => '\ASesFeedback',                     // Composer autoloading needs to a prepended backslash
+            'class' => '\ASesFeedback',                     // Composer autoloading needs a prepended backslash
             'handlers' => array(
                 'bounceAndComplaint' => array(
-                    'class'  => '\ASesFeedbackHandler',     // Composer autoloading needs to a prepended backslash
+                    'class'  => '\ASesFeedbackHandler',     // Composer autoloading needs a prepended backslash
                     'accessKey'  => 'DKIASHFUSET2X3G5JR5D',
                     'secretKey'  => 'thisisadummycred+ZNty4Ag4eig453yOfFuffr4',
                     'region'     => 'us-east-1',
                     'queueName'  => 'bounces_and_complaints',
-                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this is your app uses v2.
+                    // 'awsApiVersion' => 2, // By default version 3 of the AWS SDK is used, uncomment this if your app uses v2.
                 ),
             )
         ),
@@ -229,7 +229,7 @@ Example Usage
 -------------
 
 Yii-ses-feedback itself doesn't do anything except raise Yii events.
-To do something useful with email feedback, you'll need to attach event listeners on the `onSesBounce` and `onSesComplaint` events  .
+To do something useful with email feedback, you'll need to attach event listeners on the `onSesBounce` and `onSesComplaint` events.
 To do this, create a yiic command that `extends ASesFeedbackCommand`, here's an example where complaints are logged and bounces are saved to the database:
 
 
@@ -249,11 +249,11 @@ class PPHSesFeedbackCommand extends ASesFeedbackCommand
 
         // Attach an anonymous function to the onSesComplaint event.
         // If we decide we want to do something when someone complains, add it here
-        Yii::app()->sesFeedback->onSesComplaint = function ($event) {Yii::log('Complaint recieved in PPHSesFeedbackCommand - No action taken.', CLogger::LEVEL_INFO, ASesFeedbackCommand::LOGCAT);};
+        Yii::app()->sesFeedback->onSesComplaint = function ($event) {Yii::log('Complaint received in PPHSesFeedbackCommand - No action taken.', CLogger::LEVEL_INFO, ASesFeedbackCommand::LOG_CAT);};
     }
 
     /**
-     * Process a Email bounce event.
+     * Process an email bounce event.
      */
     public function reactToBounce(CEvent $event)
     {
@@ -262,7 +262,7 @@ class PPHSesFeedbackCommand extends ASesFeedbackCommand
 
         // Extract the reason for the bounce
         $reason = 'bounceType: '.$msg['bounce']['bounceType'].'. '       // e.g. 'Permanent' or 'Transient'.
-                  .'bounceSubType: '.$msg['bounce']['bounceSubType'].'.';// e.g. 'Undetermined','General','Suppressed','NoEmail','MailboxFull','MessageToolarge','ContentRejected','AttachmentRejected'
+                  .'bounceSubType: '.$msg['bounce']['bounceSubType'].'.';// e.g. 'Undetermined','General','Suppressed','NoEmail','MailboxFull','MessageTooLarge','ContentRejected','AttachmentRejected'
 
         foreach($msg['bounce']['bouncedRecipients'] as $r) {
 
