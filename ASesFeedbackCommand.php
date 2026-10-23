@@ -47,7 +47,7 @@ class ASesFeedbackCommand extends CConsoleCommand
     /**
      * Fetch feedback notifications from SQS and process them.
      *
-     * @param Boolean $maxNum               Set if you want to limit processing to a certain number of messages.
+     * @param Integer $maxNum               Set if you want to limit processing to a certain number of messages.
      * @param Boolean $leaveFailuresInQueue Set to true if you don't want to remove msgs that failed to process from the SQS queue. Useful when testing.
      */
     public function actionIndex($maxNum=1000,$leaveFailuresInQueue=false)
@@ -68,7 +68,7 @@ class ASesFeedbackCommand extends CConsoleCommand
      * Fetch feedback notifications from SQS and process them.
      *
      * @param Object  $handler              The SQS Queue handler to process.
-     * @param Boolean $maxNum               Set if you want to limit processing to a certain number of messages.
+     * @param Integer $maxNum               Set if you want to limit processing to a certain number of messages.
      * @param Boolean $leaveFailuresInQueue Set to true if you don't want to remove msgs that failed to process from the SQS queue. Useful when testing.
      */
     public function workOff($handler, $maxNum, $leaveFailuresInQueue)

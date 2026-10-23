@@ -25,7 +25,7 @@ class ExampleSesFeedbackCommand extends ASesFeedbackCommand
      * Fetch feedback notifications from SQS and process them.
      * We override the parent just so that we can auto-schedule it with phpdoc-crontab
      *
-     * @param Boolean $maxNum               Set if you want to limit processing to a certain number of messages.
+     * @param Integer $maxNum               Set if you want to limit processing to a certain number of messages.
      * @param Boolean $leaveFailuresInQueue Set to true if you don't want to remove msgs that failed to process from the SQS queue. Useful when testing.
      *
      * @cron 17 * * * *
